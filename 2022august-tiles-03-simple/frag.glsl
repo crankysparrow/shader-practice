@@ -52,30 +52,16 @@ float outlinerect(vec2 coord, vec2 size) {
 void main() {
   vec2 st = vTexCoord;
 
-  st *= 4.0;
-  st = fract(st);
+  st *= 5.0;
 
   float col = 0.1;
+  st = fract(st);
 
-  vec2 topmid = st - vec2(0.5, 0.75);
-  topmid = rotate2d(PI * 0.25) * topmid * 2.0;
-  topmid += 0.5;
-  col += box(topmid, 0.7);
-
-  vec2 topright = st - vec2(1., 0.75);
-  topright = rotate2d(PI * 0.25) * topright * 2.0;
-  topright += 0.5;
-  col += outline(topright, 0.7);
-
-  vec2 topleft = st - vec2(0., 0.75);
-  topleft = rotate2d(PI * 0.25) * topleft * 2.0;
-  topleft += 0.5;
-  col += outline(topleft, 0.7);
-
-  col += rect(st + vec2(0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(-0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(0.0, 0.5), vec2(1.0, 0.015));
-  col += rect(st + vec2(0.0, 0.24), vec2(0.015, 0.5));
+  st -= 0.5;
+  st = rotate2d(PI * 0.25) * st;
+  st += 0.5;
+ 
+  col += box(st, 0.7);
 
   gl_FragColor = vec4(vec3(col), 1.0);
 }

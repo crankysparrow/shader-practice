@@ -52,30 +52,27 @@ float outlinerect(vec2 coord, vec2 size) {
 void main() {
   vec2 st = vTexCoord;
 
-  st *= 4.0;
-  st = fract(st);
-
   float col = 0.1;
 
-  vec2 topmid = st - vec2(0.5, 0.75);
-  topmid = rotate2d(PI * 0.25) * topmid * 2.0;
-  topmid += 0.5;
-  col += box(topmid, 0.7);
+  st *= 5.0;
 
-  vec2 topright = st - vec2(1., 0.75);
-  topright = rotate2d(PI * 0.25) * topright * 2.0;
-  topright += 0.5;
-  col += outline(topright, 0.7);
+  // st.y will be bw 0-1, 1-2, 2-3, 3-4, 4-5 
+  // if st.y%2.0 > 1 (ex: st.y = 1.5 --> 1.5 / 2) --> row is odd 
+  // if st.y%2.0 < 1 (ex: st.y = 2.5 --> 2.5 / 2) --> row is even
+  float row_odd = step(1.0, mod(st.y, 2.0)); 
+  float col_odd = step(1.0, mod(st.x, 2.0));
 
-  vec2 topleft = st - vec2(0., 0.75);
-  topleft = rotate2d(PI * 0.25) * topleft * 2.0;
-  topleft += 0.5;
-  col += outline(topleft, 0.7);
+  float oddtime = step(1.0, mod(u_time, 2.0));
+  float eventime = 1.0 - oddtime;
 
-  col += rect(st + vec2(0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(-0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(0.0, 0.5), vec2(1.0, 0.015));
-  col += rect(st + vec2(0.0, 0.24), vec2(0.015, 0.5));
+  st.x += row_odd * u_time * oddtime; // makes odd rows move left 
+  st.x += (1.0 - row_odd) * u_time * -1.0 * oddtime; // even rows move right
+
+  st.y += col_odd * u_time * eventime;
+  st.y += (1.0 - col_odd) * u_time * -1.0 * eventime;
+
+  st = fract(st);
+  col += outline(st, 0.7);
 
   gl_FragColor = vec4(vec3(col), 1.0);
 }

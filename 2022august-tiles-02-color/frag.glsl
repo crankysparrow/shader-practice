@@ -44,6 +44,7 @@ float rect(vec2 coord, vec2 size) {
 }
 
 float outlinerect(vec2 coord, vec2 size) {
+    // vec2 edges = (vec2(1.0) - size) / 2.0;
     float outer = rect(coord, size);
     float inner = rect(coord, size - vec2(0.05));
     return outer - inner;
@@ -52,30 +53,41 @@ float outlinerect(vec2 coord, vec2 size) {
 void main() {
   vec2 st = vTexCoord;
 
+  vec3 blue = vec3(0.204, 0.552, 0.668);
+  vec3 darkblue = vec3(0.044, 0.0, 0.204);
+  vec3 yellow = vec3(0.988, 0.792, 0.274);
+
   st *= 4.0;
   st = fract(st);
 
-  float col = 0.1;
+  vec3 col = vec3(0.2, 0.2, 0.2);
 
   vec2 topmid = st - vec2(0.5, 0.75);
   topmid = rotate2d(PI * 0.25) * topmid * 2.0;
   topmid += 0.5;
-  col += box(topmid, 0.7);
+  // col += box(topmid, 0.7);
+  float topmid_shape = box(topmid, 0.7);
+  col = mix(darkblue, blue, topmid_shape);
 
   vec2 topright = st - vec2(1., 0.75);
   topright = rotate2d(PI * 0.25) * topright * 2.0;
   topright += 0.5;
-  col += outline(topright, 0.7);
+  float topright_shape = outline(topright, 0.7);
+  col = mix(col, yellow, topright_shape);
+  // col += vec3(outline(topright, 0.7));
 
   vec2 topleft = st - vec2(0., 0.75);
   topleft = rotate2d(PI * 0.25) * topleft * 2.0;
   topleft += 0.5;
-  col += outline(topleft, 0.7);
+  float topleft_shape = outline(topleft, 0.7);
+  col = mix(col, yellow, topleft_shape);
+  // col += outline(topleft, 0.7);
 
-  col += rect(st + vec2(0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(-0.5, 0.24), vec2(0.015, 0.5));
-  col += rect(st + vec2(0.0, 0.5), vec2(1.0, 0.015));
-  col += rect(st + vec2(0.0, 0.24), vec2(0.015, 0.5));
+  col += rect(st + vec2(0.5, 0.25), vec2(0.01, 0.5));
+  col += rect(st + vec2(-0.5, 0.25), vec2(0.01, 0.5));
+  col += rect(st + vec2(0.0, 0.5), vec2(1.0, 0.01));
+  col += rect(st + vec2(0.0, 0.25), vec2(0.01, 0.5));
 
-  gl_FragColor = vec4(vec3(col), 1.0);
+  // gl_FragColor = vec4(vec3(col), 1.0);
+  gl_FragColor = vec4(col, 1.0);
 }
