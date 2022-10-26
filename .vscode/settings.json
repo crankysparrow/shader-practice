@@ -1,0 +1,4 @@
+{
+	"editor.inlayHints.enabled": "offUnlessPressed",
+	"webgl-glsl-editor.format.placeSpaceAfterKeywords": true
+}
