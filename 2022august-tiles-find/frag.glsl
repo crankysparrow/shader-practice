@@ -14,13 +14,10 @@ void main() {
   vec3 lightgreen = vec3(0.69, 0.949, 0.706);
 
   vec2 st = vTexCoord;
-  vec3 color = vec3(0.0);
-  float d = 0.0;
 
   st *= 2.0;
-  // st *= 2.0;
 
-  float odd_y = step(1.0, mod(st.y, 2.0)); 
+  float odd_y = step(1.0, mod(st.y, 2.0));
   float odd_x = step(1.0, mod(st.x, 2.0));
 
   // find where in the grid the square is
