@@ -9,14 +9,22 @@ uniform float u_time;
 
 #define PI 3.14159265358979323846
 
-mat2 rotate2d(float _angle) {
+float smoothen(in float _value, in float _threshold) {
+  return smoothstep(_threshold - 1.0 / u_resolution.x, _threshold + 1.0 / u_resolution.x, _value);
+}
+
+mat2 rotate2d(in float _angle) {
   return mat2(cos(_angle), -sin(_angle), sin(_angle), cos(_angle));
 }
 
 float circle(in vec2 _st, in float _radius) {
-  vec2 dist = _st - vec2(0.5);
-  float _circ = 1.0 - smoothstep(_radius, _radius * 1.01, dot(dist, dist) * 4.0);
-  return _circ;
+  // vec2 dist = _st - vec2(0.5);
+  // float _circ = 1.0 - smoothstep(_radius, _radius * 1.01, dot(dist, dist) * 4.0);
+  // float _circ = 1.0 - step(_radius, dot(dist, dist) * 4.0);
+  // float _circ = 1.0 - dot(dist, dist) * 4.0;
+  float dist = distance(_st, vec2(0.5));
+  return smoothstep(_radius + 0.001, _radius - 0.001, dist);
+  // return smoothstep(_circ, _circ - 1.0 / u_resolution.x, 1.0 - _radius);
 }
 
 float circle_outline(in vec2 _st, in float _radius, in float _width) {
@@ -24,7 +32,6 @@ float circle_outline(in vec2 _st, in float _radius, in float _width) {
   float circ2 = circle(_st, _radius - _width);
   return circ1 - circ2;
 }
-
 
 float line(vec2 _st) {
   float edge1 = step(0.000, _st.x);
@@ -52,10 +59,6 @@ float gradient(vec2 _st) {
   return shape;
 }
 
-vec3 demo(vec2 _st) {
-  return vec3(_st.x, _st.y, 0.0);
-}
-
 vec3 gradientAndLine(vec2 _st, float _angle, float _radius) {
 
   float _circ = circle(_st, _radius);
@@ -77,19 +80,30 @@ vec3 gradientAndLine(vec2 _st, float _angle, float _radius) {
   return _design;
 }
 
+vec3 blip(vec2 _st, float _radius) {
+  float dist = distance(_st, vec2(0.5));
+  float b = smoothstep(_radius * 0.5, _radius * 1.8, dist);
+  // float c = circle(_st, _radius);
+  float c = smoothstep(_radius + 0.001, _radius - 0.001, dist);
+  return vec3(c * b, 0.0, 0.0);
+}
+
 void main() {
   vec2 st = vTexCoord;
   vec3 col = vec3(0.0, 0.0, 0.0);
 
-
-  float c = circle_outline(st, 0.25, 0.003);
-  float c2 = circle_outline(st, 0.9, 0.005);
-  col += c + c2;
-
+  col += circle_outline(st, 0.01, 0.002);
+  col += circle_outline(st, 0.25, 0.002);
+  col += circle_outline(st, 0.4, 0.002);
 
   float angle = fract(u_time * 0.25) * PI * 2.0;
+  col += gradientAndLine(st, angle, 0.4);
 
-  col += gradientAndLine(st, angle, 0.9);
+  float bliptime = fract(u_time * 1.6) * 0.06 + 0.01;
+  col += blip(st + vec2(0.2, 0.28), bliptime);
+
+  float blipmid = circle(st + vec2(0.2, 0.28), 0.005);
+  col += vec3(blipmid, blipmid * 0.2, blipmid * 0.2);
 
   gl_FragColor = vec4(col, 1.0);
 }
