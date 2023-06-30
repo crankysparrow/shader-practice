@@ -9,6 +9,10 @@ uniform float u_time;
 
 #define PI 3.14159265358979323846
 
+float map (float value, float inmin, float inmax, float outmin, float outmax) {
+  return (value - inmin) * (outmax - outmin) / (inmax - inmin) + outmin;
+}
+
 vec2 rotate2d(vec2 _st, float _angle) {
   _st -= 0.5;
   _st *= mat2(cos(_angle), -sin(_angle), sin(_angle), cos(_angle));
@@ -29,14 +33,15 @@ float line(vec2 _st) {
   return line;
 }
 
-float rect(vec2 _st, vec2 size) {
-  float edgex = 1.0 - size.x;
-  float edgey = 1.0 - size.y;
+float rect(vec2 _st, vec2 size, float smoothness) {
+  float edgex = (1.0 - size.x) * 0.5;
+  float edgey = (1.0 - size.y) * 0.5;
+  float smhalf = smoothness * 0.5;
 
-  float top = step(edgey * 0.5, _st.y);
-  float bottom = step(edgey * 0.5, 1.0 - _st.y);
-  float left = step(edgex * 0.5, _st.x);
-  float right = step(edgex * 0.5, 1.0 - _st.x);
+  float bottom = smoothstep(edgey - smhalf, edgey + smhalf, _st.y);
+  float top = smoothstep(edgey - smhalf, edgey + smhalf, 1.0 - _st.y);
+  float left = smoothstep(edgex - smhalf, edgex + smhalf, _st.x);
+  float right = smoothstep(edgex - smhalf, edgex + smhalf, 1.0 - _st.x);
 
   return top * bottom * left * right;
 }
@@ -62,13 +67,11 @@ void main() {
   st = rotate2d(st, var * PI * check1);
   st = rotate2d(st, -var * PI * check2);
 
-  // st -= vec2(0.5);
-  // st /= (1.0 + (check1 * 0.2));
-  // st += vec2(0.5);
 
-  float md = rect(st, vec2(0.7 + check1 * 0.3)) - rect(st, vec2(0.65));
+  float outeredge = 0.7 + map(cos(fract(u_time * 0.5) * PI * 2.0), -1.0, 1.0, -0.2, 0.8) * check1;
+  float inneredge = 0.6 - check1 * 0.1;
 
-  // col = vec3(sm + md);
+  float md = rect(st, vec2(outeredge), 0.01) - rect(st, vec2(inneredge), 0.008);
   col = vec3(md);
 
   gl_FragColor = vec4(col, 1.0);
