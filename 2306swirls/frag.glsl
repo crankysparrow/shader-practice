@@ -15,6 +15,10 @@ vec3 orange = vec3(1.0, 0.467, 0.0);
 vec3 peach = vec3(0.933, 0.824, 0.553);
 vec3 teal = vec3(0.0, 0.686, 0.71);
 
+// ffmpeg -f image2 -r 10 -i %d.png -filter_complex
+// "fps=10,scale=720:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse"
+// output.gif
+
 // vec2 rotate2d(vec2 _st, float _angle) {
 //   _st -= 0.5;
 //   _st *= mat2(cos(_angle), -sin(_angle), sin(_angle), cos(_angle));
